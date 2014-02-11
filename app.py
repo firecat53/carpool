@@ -13,10 +13,10 @@ def create_db():
         return
     conn = sqlite3.connect(DB)
     conn.execute("CREATE TABLE carpool ("
-                 "id INTEGER PRIMARY KEY, "
-                 "name char(100) NOT NULL, "
+                 "name char(25) PRIMARY KEY, "
                  "date text, "
-                 "num int(5) NOT NULL)")
+                 "num int(4) NOT NULL, "
+                 "position int(2) NOT NULL)")
     conn.commit()
 
 
@@ -27,7 +27,7 @@ def index():
     """
     conn = sqlite3.connect(DB)
     c = conn.cursor()
-    c.execute("SELECT name, date, num FROM carpool ORDER BY date desc")
+    c.execute("SELECT * FROM carpool ORDER BY position desc")
     drivers = c.fetchall()
     c.close()
     return template('make_table.tpl', rows=drivers)
@@ -40,8 +40,9 @@ def update_driver(driver):
     """
     conn = sqlite3.connect(DB)
     c = conn.cursor()
+    c.execute("UPDATE carpool SET position=position+1")
     c.execute("UPDATE carpool SET date=datetime('now'), "
-              "num=num+1 WHERE name=?", (driver,))
+              "position=0, num=num+1 WHERE name=?", (driver,))
     conn.commit()
     c.close()
     redirect("/")
@@ -56,8 +57,13 @@ def add_driver():
         name = request.GET.get('name', '').strip()
         conn = sqlite3.connect(DB)
         c = conn.cursor()
-        c.execute("INSERT INTO carpool (name, num) "
-                  "VALUES (?, 0)", (name,))
+        c.execute("SELECT MAX(position) FROM carpool")
+        try:
+            pos = int(c.fetchall()[0][0])
+        except TypeError:
+            pos = 0
+        c.execute("INSERT INTO carpool (name, num, position) "
+                  "VALUES (?, 0, ?+1)", (name, pos))
         conn.commit()
         c.close()
         redirect('/')
@@ -67,7 +73,7 @@ def add_driver():
 
 @route('/del_driver')
 def del_driver():
-    """Delete a driver from the database
+    """TODO: Delete a driver from the database
 
     """
     pass
