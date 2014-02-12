@@ -22,8 +22,7 @@ Requirements
 ------------
 
 1. Python 2.7+ or 3.2+
-2. Sqlite
-3. bottle
-4. bottle-cork (for authentication) (TODO)
+2. bottle
+3. bottle-cork (for authentication) (TODO)
 
 

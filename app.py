@@ -111,6 +111,6 @@ def reset_db():
 if __name__ == "__main__":
     create_db()
     debug(False)
-    run(reloader=False)
+    run(reloader=False, server='cgi')
     #remember to remove reloader=True and debug(True) when you move your
     #application from development to a production environment
