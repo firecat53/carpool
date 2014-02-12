@@ -110,7 +110,7 @@ def reset_db():
 
 if __name__ == "__main__":
     create_db()
-    debug(True)
-    run(reloader=True)
+    debug(False)
+    run(reloader=False)
     #remember to remove reloader=True and debug(True) when you move your
     #application from development to a production environment
