@@ -30,7 +30,7 @@ def index():
     c.execute("SELECT * FROM carpool ORDER BY position desc")
     drivers = c.fetchall()
     c.close()
-    return template('make_table.tpl', rows=drivers)
+    return template('view/make_table.tpl', rows=drivers)
 
 
 @route('/update_driver/<driver>', method="GET")
@@ -68,7 +68,7 @@ def add_driver():
         c.close()
         redirect('/')
     else:
-        return template('add_driver.tpl')
+        return template('view/add_driver.tpl')
 
 
 @route('/del_driver')
