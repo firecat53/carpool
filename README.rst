@@ -29,7 +29,7 @@ Installation
 ____________
 
 - Clone app ``git clone https://github.com/firecat53/carpool.git``
-- Create virtualenv ``cd carpool && virtualenv --no-site-packages venv``
+- Create virtualenv ``cd carpool && virtualenv --no-site-packages venv && source venv/bin/activate``
 - Install requirements ``pip install -r requirements.txt``
 - Run server ``python app.py`` and visit http://localhost:8080
 - Configure reverse proxy webserver if desired.
