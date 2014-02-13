@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import sqlite3
 from bottle import redirect, request, route, run, template, debug
 
@@ -111,6 +112,4 @@ def reset_db():
 if __name__ == "__main__":
     create_db()
     debug(False)
-    run(reloader=False, server='cgi')
-    #remember to remove reloader=True and debug(True) when you move your
-    #application from development to a production environment
+    run(reloader=False, host='0.0.0.0')
