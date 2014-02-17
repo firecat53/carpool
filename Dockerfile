@@ -15,4 +15,6 @@ RUN pip install --upgrade -r /srv/http/carpool/requirements.txt
 
 EXPOSE 8080
 
-CMD ["/bin/su", "-c", "/srv/http/carpool/carpool.sh", "www-data"]
+USER www-data
+
+CMD ["/srv/http/carpool/carpool.sh"]
