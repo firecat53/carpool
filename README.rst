@@ -37,5 +37,5 @@ Installation (normal)
 Installation (docker)
 ---------------------
 - Copy the Dockerfile into the current directory and run ``sudo docker build -t carpool .``
-- Run the data container ``sudo docker run -v /srv/http/carpool/data -name DATA -u www-data busybox true``
+- Run the data container ``sudo docker run -v /srv/http/carpool/data -name DATA busybox true``
 - Run the docker container ``sudo docker run -d -p 8080:8080 --volumes-from DATA carpool:latest``

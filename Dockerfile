@@ -10,11 +10,8 @@ RUN apt-get -y install python python-pip git
 
 # Download and configure carpool script
 RUN git clone https://github.com/firecat53/carpool /srv/http/carpool
-RUN chown -R www-data:www-data /srv/http/carpool
 RUN pip install --upgrade -r /srv/http/carpool/requirements.txt
 
 EXPOSE 8080
-
-USER www-data
 
 CMD ["/srv/http/carpool/carpool.sh"]
