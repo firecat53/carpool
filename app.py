@@ -2,7 +2,7 @@
 import sqlite3
 from bottle import redirect, request, route, run, template, debug
 
-DB = 'carpool.db'
+DB = 'data/carpool.db'
 
 
 def create_db():

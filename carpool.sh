@@ -4,5 +4,7 @@
 app_dir="/srv/http/carpool"
 
 cd "$app_dir"
-source "venv/bin/activate"
+if [ -d "venv" ]; then
+	. venv/bin/activate
+fi
 python app.py > /dev/null
