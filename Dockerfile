@@ -1,12 +1,13 @@
-FROM ubuntu
+FROM ubuntu:12.04
 MAINTAINER Scott Hansen firecat4153@gmail.com
 
 ENV DEBIAN_FRONTEND noninteractive
 
 # Install packages
-RUN echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list
-RUN apt-get update && apt-get -y upgrade
-RUN apt-get -y install python python-pip git
+RUN apt-get update
+RUN apt-get upgrade -y
+RUN apt-get -y install python-setuptools git
+RUN easy_install --upgrade pip
 
 # Download and configure carpool script
 RUN git clone https://github.com/firecat53/carpool /srv/http/carpool
