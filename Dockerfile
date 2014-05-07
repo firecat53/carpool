@@ -1,4 +1,4 @@
-FROM ubuntu:12.04
+FROM ubuntu:trusty
 MAINTAINER Scott Hansen firecat4153@gmail.com
 
 # Install packages
