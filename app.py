@@ -1,8 +1,11 @@
 #!/usr/bin/env python
+import datetime
 import sqlite3
 from bottle import redirect, request, route, run, template, debug
 
 DB = 'data/carpool.db'
+CYCLE1_START = datetime.date(2015, 1, 4)
+CYCLE2_START = datetime.date(2015, 1, 7)
 
 
 def create_db():
@@ -14,7 +17,8 @@ def create_db():
                  "name char(25) PRIMARY KEY, "
                  "date text, "
                  "num int(4) NOT NULL, "
-                 "position int(2) NOT NULL)")
+                 "position int(2) NOT NULL, "
+                 "riding_next int(1))")
     conn.commit()
 
 
@@ -25,26 +29,47 @@ def index():
     """
     conn = sqlite3.connect(DB)
     c = conn.cursor()
-    c.execute("SELECT name, strftime('%Y-%m-%d', date), num, position "
+    c.execute("SELECT name, strftime('%Y-%m-%d', date), "
+              "num, position, riding_next "
               "FROM carpool ORDER BY position desc")
     drivers = c.fetchall()
-    c.close()
-    return template('view/make_table.tpl', rows=drivers)
+    conn.close()
+    s = get_next_shift().strftime("%a, %b %d")
+    return template('view/make_table.tpl', rows=drivers, shift=s)
 
 
 @route('/update_driver/<driver>', method="GET")
 def update_driver(driver):
-    """Update database for driver clicked with current date.
+    """Update database for driver clicked with current date. Clear checkboxes
+    for who will be carpooling the next shift.
 
     """
     conn = sqlite3.connect(DB)
     c = conn.cursor()
-    c.execute("UPDATE carpool SET position=position+1")
+    c.execute("UPDATE carpool SET position=position+1, riding_next=0")
     c.execute("UPDATE carpool SET date=datetime('now', 'localtime'), "
               "position=0, num=num+1 WHERE name=?", (driver,))
     conn.commit()
     c.close()
     redirect("/")
+
+
+@route('/updateRiders', method='POST')
+def update_riders():
+    """Update the checkbox values for who is riding next shift
+
+    """
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
+    names = [i[0] for i in c.execute("SELECT name FROM carpool").fetchall()]
+    res = [i for i in request.forms.getall('selected[]')]
+    for name in names:
+        checked = 1 if name in res else 0
+        stmnt = ("UPDATE carpool SET riding_next={} "
+                 "WHERE name='{}'".format(checked, name))
+        c.execute(stmnt)
+    conn.commit()
+    conn.close()
 
 
 @route('/admin')
@@ -69,8 +94,8 @@ def add_driver():
             pos = int(c.fetchall()[0][0])
         except TypeError:
             pos = 0
-        c.execute("INSERT INTO carpool (name, num, position) "
-                  "VALUES (?, 0, ?+1)", (name, pos))
+        c.execute("INSERT INTO carpool (name, num, position, riding_next) "
+                  "VALUES (?, 0, ?+1, 0)", (name, pos))
         conn.commit()
         c.close()
         redirect('/')
@@ -109,7 +134,38 @@ def reset_db():
     redirect('/admin')
 
 
+def date_generator(start, end):
+    """Generate a range of dates from start to end
+
+    """
+    res = []
+    while True:
+        res.append(start)
+        start += datetime.timedelta(days=8)
+        if start < end:
+            continue
+        else:
+            break
+    return res
+
+
+def get_next_shift():
+    """Return the date of our next shift after today
+
+    """
+    today = datetime.date.today()
+    end = today + datetime.timedelta(days=8)
+    res = sorted(date_generator(CYCLE1_START, end) +
+                 date_generator(CYCLE2_START, end))[-3:]
+    if today not in res:
+        res.append(today)
+        res = sorted(res)
+        return res[res.index(today) + 1]
+    else:
+        return res[res.index(today)]
+
+
 if __name__ == "__main__":
     create_db()
     debug(False)
-    run(reloader=False, host='0.0.0.0')
+    run(reloader=False, host='0.0.0.0', port=8080)
