@@ -7,4 +7,4 @@ cd "$app_dir"
 if [ -d "venv" ]; then
 	. venv/bin/activate
 fi
-python app.py > /dev/null
+exec python app.py > /dev/null
