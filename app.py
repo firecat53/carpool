@@ -18,7 +18,8 @@ def create_db():
                  "date text, "
                  "num int(4) NOT NULL, "
                  "position int(2) NOT NULL, "
-                 "riding_next int(1))")
+                 "riding_next int(1), "
+                 "next_shift text)")
     conn.commit()
 
 
@@ -29,12 +30,18 @@ def index():
     """
     conn = sqlite3.connect(DB)
     c = conn.cursor()
+    # Compare stored next shift with current next shift. Update next_shift for
+    # all riders and clear the checkboxes.
+    ns = c.execute("SELECT next_shift FROM carpool LIMIT 1").fetchone()[0]
+    s = get_next_shift().strftime("%a, %b %d")
+    if ns != s:
+        c.execute("UPDATE carpool set riding_next=0, next_shift=?", (s,))
+        conn.commit()
     c.execute("SELECT name, strftime('%Y-%m-%d', date), "
-              "num, position, riding_next "
+              "num, position, riding_next, next_shift "
               "FROM carpool ORDER BY position desc")
     drivers = c.fetchall()
     conn.close()
-    s = get_next_shift().strftime("%a, %b %d")
     return template('view/make_table.tpl', rows=drivers, shift=s)
 
 
@@ -46,7 +53,7 @@ def update_driver(driver):
     """
     conn = sqlite3.connect(DB)
     c = conn.cursor()
-    c.execute("UPDATE carpool SET position=position+1, riding_next=0")
+    c.execute("UPDATE carpool SET position=position+1")
     c.execute("UPDATE carpool SET date=datetime('now', 'localtime'), "
               "position=0, num=num+1 WHERE name=?", (driver,))
     conn.commit()
@@ -94,8 +101,9 @@ def add_driver():
             pos = int(c.fetchall()[0][0])
         except TypeError:
             pos = 0
-        c.execute("INSERT INTO carpool (name, num, position, riding_next) "
-                  "VALUES (?, 0, ?+1, 0)", (name, pos))
+        s = get_next_shift().strftime("%a, %b %d")
+        c.execute("INSERT INTO carpool "
+                  "VALUES (?, '', 0, ?+1, 0, ?)", (name, pos, s))
         conn.commit()
         c.close()
         redirect('/')

@@ -36,7 +36,7 @@
   <body>
     <h2>Carpool</h2>
     <h3>Check the box if you are carpooling on <span id="date">{{shift}}</span></h3>
-    <form id="riders" method="post" action="/updateRiders">
+    <form id="riders" method="post" action="/updateRiders" autocomplete="off">
         <table>
         <tr>
             <th>Driver</th>
