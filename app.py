@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import datetime
 import sqlite3
-from bottle import redirect, request, route, run, template, debug
+from bottle import redirect, request, route, run, template, debug, static_file
 
 DB = 'data/carpool.db'
 CYCLE1_START = datetime.date(2015, 1, 4)
@@ -21,6 +21,11 @@ def create_db():
                  "riding_next int(1), "
                  "next_shift text)")
     conn.commit()
+
+
+@route('/static/<filename>')
+def server_static(filename):
+    return static_file(filename, root='static')
 
 
 @route('/')
@@ -45,7 +50,7 @@ def index():
     return template('view/make_table.tpl', rows=drivers, shift=s)
 
 
-@route('/update_driver/<driver>', method="GET")
+@route('/update_driver/<driver>')
 def update_driver(driver):
     """Update database for driver clicked with current date. Clear checkboxes
     for who will be carpooling the next shift.
@@ -57,26 +62,22 @@ def update_driver(driver):
     c.execute("UPDATE carpool SET date=datetime('now', 'localtime'), "
               "position=0, num=num+1 WHERE name=?", (driver,))
     conn.commit()
-    c.close()
+    conn.close()
     redirect("/")
 
 
-@route('/updateRiders', method='POST')
-def update_riders():
-    """Update the checkbox values for who is riding next shift
+@route('/update_rider/<rider>')
+def update_rider(rider):
+    """Toggle the values for who is riding next shift
 
     """
     conn = sqlite3.connect(DB)
     c = conn.cursor()
-    names = [i[0] for i in c.execute("SELECT name FROM carpool").fetchall()]
-    res = [i for i in request.forms.getall('selected[]')]
-    for name in names:
-        checked = 1 if name in res else 0
-        stmnt = ("UPDATE carpool SET riding_next={} "
-                 "WHERE name='{}'".format(checked, name))
-        c.execute(stmnt)
+    c.execute("UPDATE carpool SET riding_next=NOT riding_next "
+              "WHERE name=?", (rider,))
     conn.commit()
     conn.close()
+    redirect("/")
 
 
 @route('/admin')

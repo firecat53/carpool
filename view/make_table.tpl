@@ -18,38 +18,27 @@
         color: black;
       }
     </style> 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $('.checkbox').on('change',function(){
-                var selected = $("#riders input:checked").map(function(i, el) {
-                    return el.value;}).get();
-                $.ajax({
-                    type: 'POST',
-                    url: '/updateRiders',
-                    data: { selected }
-                });
-            });
-        });
-    </script>
   </head>
   <body>
     <h2>Carpool</h2>
     <h3>Check the box if you are carpooling on <span id="date">{{shift}}</span></h3>
-    <form id="riders" method="post" action="/updateRiders" autocomplete="off">
         <table>
-        <tr>
-            <th>Driver</th>
-            <th>Date</th>
-        </tr>
-        %for row in rows:
-        <tr>
-            <td><a href="/update_driver/{{row[0]}}">{{row[0]}}</a></td>
-            <td>{{row[1]}}</td>
-            <td><input type="checkbox" class="checkbox" name="rider" value="{{row[0]}}" {{'checked=""' if row[4] == 1 else ""}} /></td>
-        </tr>
-        %end
+            <thead>
+                <tr>
+                <th>Driver</th>
+                <th>Date</th>
+                </tr>
+            </thead>
+            %for row in rows:
+            <tr>
+                <td><a href="/update_driver/{{row[0]}}">{{row[0]}}</a></td>
+                <td>{{row[1]}}</td>
+                <td><a href="/update_rider/{{row[0]}}">
+                      <img src="static/{{'in.png' if row[4] else 'out.png'}}" />
+                    </a>
+                </td>
+            </tr>
+            %end
         </table>
-    </form>
   </body>
 </html>
