@@ -2,7 +2,7 @@ FROM python:alpine
 LABEL "Maintainer"="Scott Hansen <firecat4153@gmail.com>"
 
 # Install packages
-RUN apk --no-cache add git &&
+RUN apk --no-cache add git && \
     git clone https://github.com/firecat53/carpool.git /srv/http/carpool && \
     pip install --upgrade -r /srv/http/carpool/requirements.txt && \
     adduser -DH carpool && \
