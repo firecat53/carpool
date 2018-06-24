@@ -1,15 +1,17 @@
-FROM ubuntu:16.04
+FROM python:alpine
 LABEL "Maintainer"="Scott Hansen <firecat4153@gmail.com>"
 
 # Install packages
-RUN apt-get update -q && \
-    apt-get -qy install git python-setuptools && \
-    easy_install --upgrade pip && \
-    git clone https://github.com/firecat53/carpool /srv/http/carpool && \
+RUN apk --no-cache add git &&
+    git clone https://github.com/firecat53/carpool.git /srv/http/carpool && \
     pip install --upgrade -r /srv/http/carpool/requirements.txt && \
-    apt-get autoremove -qy git && \
-    rm -rf /var/lib/apt/lists/*
+    adduser -DH carpool && \
+    chown -R carpool:users /srv/http/carpool && \
+    apk del git
 
+USER carpool
+VOLUME /srv/http/carpool/data
+WORKDIR /srv/http/carpool/
 EXPOSE 8080
 
 CMD ["/srv/http/carpool/carpool.sh"]
